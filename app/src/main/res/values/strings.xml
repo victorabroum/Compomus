@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">Composição Musical 1.1</string>
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_login">LoginActivity</string>
+    <string name="title">Composição Colaborativa</string>
+    <string name="nova_conta">Nova conta</string>
+    <string name="title_activity_sons">SonsActivity</string>
+    <string name="title_activity_tela_cadastro">TelaCadastro</string>
+    <string name="title_activity_cadastro">CadastroActivity</string>
+    <string name="title_activity_set_location">SetLocationActivity</string>
+    <string name="ip">http://10.208.9.111:8080</string>
+    <string name="ip_casa_bckup">http://192.168.0.100:8080</string>
+    <string name="ip_celular">http://192.168.43.15:8080</string>
+    <string name="title_activity_cadastro_som">CadastroSomActivity</string>
+</resources>
