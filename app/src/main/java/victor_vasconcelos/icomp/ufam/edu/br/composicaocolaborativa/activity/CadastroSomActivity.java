@@ -8,6 +8,7 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.Request;
@@ -39,11 +40,14 @@ public class CadastroSomActivity extends AppCompatActivity implements SomListAda
     private RequestQueue rq;
     private Som selectedItem;
     private String theLast;
+    private TextView tvSomSelected;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cadastro_som);
+
+        tvSomSelected = (TextView) findViewById(R.id.tvSomSelected);
 
         somList = Som.populateSomList();
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recyclerViewCad);
@@ -76,12 +80,16 @@ public class CadastroSomActivity extends AppCompatActivity implements SomListAda
     @Override
     public void onDataSelected(View view, int position) {
         selectedItem = somList.get(position);
+
         if (tocando){
             mp.stop();
             mp.release();
             tocando = false;
         }
         playMusic(selectedItem.getSourceRaw());
+        tvSomSelected.setText(selectedItem.getNome());
+        view.setSelected(true);
+
     }
 
     private void playMusic(int audioRaw){
@@ -115,7 +123,7 @@ public class CadastroSomActivity extends AppCompatActivity implements SomListAda
 
     public void updateAudio(int idUsuario, String audio){
 
-        String url = getResources().getString(R.string.ip) + "/composicaomusical/teste.php/updateAudio";
+        String url = getResources().getString(R.string.ip) + "/composicaomusical/app.php/updateAudio";
 
         Map<String, String> params = new HashMap<>();
         params.put("id", ""+idUsuario);

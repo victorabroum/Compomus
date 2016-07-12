@@ -1,6 +1,7 @@
 package victor_vasconcelos.icomp.ufam.edu.br.composicaocolaborativa.helper;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,6 +21,7 @@ public class SomListAdapter extends RecyclerView.Adapter<SomListAdapter.ViewHold
     private List<Som> somList;
     private Context context;
     private OnDataSelected  onDataSelected;
+    private int selected_position = -1;
 
     public SomListAdapter(Context context, OnDataSelected onDataSelected, List<Som> sons) {
         this.context = context;
@@ -38,8 +40,35 @@ public class SomListAdapter extends RecyclerView.Adapter<SomListAdapter.ViewHold
     @Override
     public void onBindViewHolder(SomListAdapter.ViewHolder holder, int position) {
 
-        Som som = somList.get(position);
-        holder.tvNomeSom.setText(som.getNome());
+        /*Som som = somList.get(position);*/
+
+        final Som item = somList.get(position);
+
+        if(selected_position == position){
+            // Here I am just highlighting the background
+            holder.itemView.setBackgroundColor(Color.DKGRAY);
+        }else{
+            holder.itemView.setBackgroundColor(Color.TRANSPARENT);
+        }
+
+        final ViewHolder aux = holder;
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                // Updating old as well as new positions
+                notifyItemChanged(selected_position);
+                selected_position = aux.getAdapterPosition();
+                notifyItemChanged(selected_position);
+
+                // Do your another stuff for your onClick
+
+                onDataSelected.onDataSelected(v, aux.getAdapterPosition());
+            }
+        });
+
+        holder.tvNomeSom.setText(item.getNome());
+
 
     }
 

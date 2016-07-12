@@ -3,8 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".activity.MainActivity">
     <item
-        android:id="@+id/nova_conta"
+        android:id="@+id/configurarLocation"
         android:orderInCategory="100"
-        android:title="@string/nova_conta"
+        android:title="@string/configurarLocation"
         app:showAsAction="never" />
 </menu>

@@ -59,7 +59,7 @@ public class CadastroActivity extends AppCompatActivity {
 
     private void postTheNewUser()  {
 
-        url = getResources().getString(R.string.ip)+"/composicaomusical/teste.php/postUsuario";
+        url = getResources().getString(R.string.ip)+"/composicaomusical/app.php/postUsuario";
 
         Map<String, String> params = new HashMap<>();
 
@@ -95,7 +95,7 @@ public class CadastroActivity extends AppCompatActivity {
     public void getUserFromDB(){
 
 
-        url = getResources().getString(R.string.ip) + "/composicaomusical/teste.php/getThisUsuario";
+        url = getResources().getString(R.string.ip) + "/composicaomusical/app.php/getThisUsuario";
         Map<String, String> params = new HashMap<>();
 
         params.put("senha",edtPassword.getText().toString());

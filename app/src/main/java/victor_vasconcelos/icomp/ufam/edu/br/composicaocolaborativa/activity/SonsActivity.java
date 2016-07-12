@@ -9,6 +9,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -24,6 +25,10 @@ import com.android.volley.toolbox.Volley;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -36,7 +41,7 @@ import victor_vasconcelos.icomp.ufam.edu.br.composicaocolaborativa.cdp.CustomJso
 public class SonsActivity extends AppCompatActivity implements LocationListener {
 
     private LocationManager locationManager;
-    private TextView tvTeste;
+    private TextView tvTeste, tvInicio, tvFinal, tvDist;
     private MediaPlayer mp;
     private boolean tocando = false, inside = false, entrou = false;
     private RequestQueue rq;
@@ -46,6 +51,8 @@ public class SonsActivity extends AppCompatActivity implements LocationListener 
     private String ip;
 
     private HashMap<String, Som> audioList;
+
+    private FileOutputStream fosExt;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,12 +73,22 @@ public class SonsActivity extends AppCompatActivity implements LocationListener 
 
         //initialize a TextView
         tvTeste = (TextView) findViewById(R.id.tvTeste);
+        tvInicio = (TextView) findViewById(R.id.tvInicio);
+        tvFinal = (TextView) findViewById(R.id.tvFinal);
+        tvDist = (TextView) findViewById(R.id.tvDist);
 
         //Make a HasMap of audios
         audioList = Som.populateKeyAudios();
 
         //Get the Area of Environment
         ambiente = getAmbiente();
+        File fileExt = new File(Environment.getExternalStorageDirectory(), "Compomus-LOG.txt");
+        try {
+            fosExt = new FileOutputStream(fileExt);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
 
     }
 
@@ -82,6 +99,11 @@ public class SonsActivity extends AppCompatActivity implements LocationListener 
             return;
         }
         locationManager.removeUpdates(this);
+        try {
+            fosExt.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
     }
 
@@ -91,7 +113,8 @@ public class SonsActivity extends AppCompatActivity implements LocationListener 
             updatePessoas("-1");
             inside = false;
         }
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
             //    ActivityCompat#requestPermissions
             // here to request the missing permissions, and then overriding
@@ -113,8 +136,6 @@ public class SonsActivity extends AppCompatActivity implements LocationListener 
     @Override
     public void onLocationChanged(Location location) {
 
-        /*boolean area = GPSHelper.setArea(ambiente.getLongitude(),
-                ambiente.getLatitude(), location.getLongitude(), location.getLatitude(), ambiente.getRaio());*/
         float vetor[] = new float[3];
         Location.distanceBetween(ambiente.getLatitude(),ambiente.getLongitude(),
                 location.getLatitude(),location.getLongitude(),vetor);
@@ -124,11 +145,16 @@ public class SonsActivity extends AppCompatActivity implements LocationListener 
         Log.i("TESTE", "Longi Final: " + ambiente.getLatitude());
         Log.i("TESTE", "DISTANCIA: " + vetor[0]);
 
+        tvInicio.setText(String.format("(%s,%s)", ambiente.getLongitude(), ambiente.getLatitude()));
+        tvFinal.setText(String.format("(%s,%s)", location.getLongitude(), location.getLatitude()));
+        tvDist.setText(String.format("Distância : %s", vetor[0]));
+
         if (vetor[0] <= ambiente.getRaio()){
             if(!entrou){
                 updatePessoas("1");
             }
-            inserirLog(usuario.getIdUsuario(), 1, usuario.getSons());
+            //inserirLog(usuario.getIdUsuario(), 1, usuario.getSons());
+            writeLog(usuario.getIdUsuario(), 1, usuario.getSons());
             inside = true;
             entrou = true;
             playMusic(audioList.get(usuario.getSons()).getSourceRaw());
@@ -136,28 +162,12 @@ public class SonsActivity extends AppCompatActivity implements LocationListener 
             if (inside){
                 updatePessoas("-1");
             }
-            inserirLog(usuario.getIdUsuario(), 0, usuario.getSons());
+            //inserirLog(usuario.getIdUsuario(), 0, usuario.getSons());
+            writeLog(usuario.getIdUsuario(), 0, usuario.getSons());
             inside = false;
             entrou = false;
             stopMusic();
         }
-        /*if (area){
-            if(!entrou){
-                updatePessoas("1");
-            }
-            inserirLog(usuario.getIdUsuario(), 1, usuario.getSons());
-            inside = true;
-            entrou = true;
-            playMusic(audioList.get(usuario.getSons()).getSourceRaw());
-        }else{
-            if (inside){
-                updatePessoas("-1");
-            }
-            inserirLog(usuario.getIdUsuario(), 0, usuario.getSons());
-            inside = false;
-            entrou = false;
-            stopMusic();
-        }*/
 
         ambiente = getAmbiente();
 
@@ -187,7 +197,7 @@ public class SonsActivity extends AppCompatActivity implements LocationListener 
         Map<String, String> params = new HashMap<>();
         params.put("pessoa", num);
 
-        String url = ip + "/composicaomusical/teste.php/updatePessoas";
+        String url = ip + "/composicaomusical/app.php/updatePessoas";
         CustomJsonObjectRequest request = new CustomJsonObjectRequest(Request.Method.PUT,
                 url,
                 params,
@@ -208,7 +218,7 @@ public class SonsActivity extends AppCompatActivity implements LocationListener 
 
     private Ambiente getAmbiente(){
 
-        String url = ip + "/composicaomusical/teste.php/getAmbienteAll";
+        String url = ip + "/composicaomusical/app.php/getAmbienteAll";
         CustomJsonObjectRequest request = new CustomJsonObjectRequest(Request.Method.GET,
                 url,
                 null,
@@ -238,7 +248,7 @@ public class SonsActivity extends AppCompatActivity implements LocationListener 
 
     public void inserirLog(int idUsuario, int status, String audio){
 
-        String url = ip + "/composicaomusical/teste.php/insertLog";
+        String url = ip + "/composicaomusical/app.php/insertLog";
 
         Map<String, String> params = new HashMap<>();
         params.put("id_usuario", "" + idUsuario);
@@ -252,7 +262,7 @@ public class SonsActivity extends AppCompatActivity implements LocationListener 
                     @Override
                     public void onResponse(JSONObject response) {
 
-                        Log.i("Script", "SUCCESS: "+response);
+                        Log.i("LOG", "SUCCESS: "+response);
 
                     }
                 },
@@ -265,6 +275,20 @@ public class SonsActivity extends AppCompatActivity implements LocationListener 
 
         request.setTag("tag");
         rq.add(request);
+    }
+
+    public void writeLog(int idUsuario, int status, String audio){
+        //Gerando txt:
+
+        String log = idUsuario + " " + status + " " + audio + "\n";
+        try {
+            fosExt.write(log.getBytes());
+            fosExt.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+            Log.e("Writer", e.getMessage());
+        }
+        //***************************************
     }
 
     public void playMusic(int audioRaw){
@@ -293,7 +317,9 @@ public class SonsActivity extends AppCompatActivity implements LocationListener 
                         Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 0, this);
+        //Pega localização com delay de 5 segundos
+        //locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 0, this);
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
     }
 
     public void btTrocarSom(View view){

@@ -19,11 +19,22 @@
         android:layout_centerHorizontal="true"
         android:layout_above="@+id/btConfirmarCadSom">
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="Escolha um Som"
+            android:id="@+id/tvSomSelected"
+            android:layout_gravity="center_horizontal" />
+
         <android.support.v7.widget.RecyclerView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/recyclerViewCad"
-            android:layout_gravity="center_horizontal" />
+            android:layout_gravity="center_horizontal"
+            android:focusableInTouchMode="false"
+            android:touchscreenBlocksFocus="false"
+            android:contextClickable="false" />
     </LinearLayout>
 
     <Button

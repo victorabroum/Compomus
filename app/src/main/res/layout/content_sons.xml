@@ -16,7 +16,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="TESTE"
+        android:text="Buscando Localizção"
         android:id="@+id/tvTeste"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true" />
@@ -30,5 +30,35 @@
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="100dp"
         android:onClick="btTrocarSom" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Centro"
+        android:id="@+id/tvInicio"
+        android:layout_marginTop="116dp"
+        android:layout_below="@+id/tvTeste"
+        android:layout_alignParentStart="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Sua posição"
+        android:id="@+id/tvFinal"
+        android:layout_marginTop="30dp"
+        android:layout_below="@+id/tvInicio"
+        android:layout_alignStart="@+id/tvInicio" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Distância"
+        android:id="@+id/tvDist"
+        android:layout_below="@+id/tvFinal"
+        android:layout_alignStart="@+id/tvInicio"
+        android:layout_marginTop="30dp" />
 
 </RelativeLayout>
