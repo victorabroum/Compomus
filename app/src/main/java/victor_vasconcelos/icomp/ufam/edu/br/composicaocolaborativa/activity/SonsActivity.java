@@ -41,7 +41,7 @@ import victor_vasconcelos.icomp.ufam.edu.br.composicaocolaborativa.cdp.CustomJso
 
 public class SonsActivity extends AppCompatActivity implements LocationListener {
 
-    private static final int DELAY = 1000 * 10 * 2;
+    private static final int DELAY = 1000 * 2;
     private LocationManager locationManager;
     private Location melhorPosicao;
     private TextView tvTeste, tvInicio, tvFinal, tvDist;
@@ -58,7 +58,6 @@ public class SonsActivity extends AppCompatActivity implements LocationListener 
     private FileOutputStream fosExt;
 
     private ProgressDialog pDialog;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -100,6 +99,16 @@ public class SonsActivity extends AppCompatActivity implements LocationListener 
         pDialog.setCancelable(false);
 
 
+    }
+
+    private float media(float vet[]){
+        int j;
+        float media = 0;
+        for (j = 0; j < vet.length; j++){
+            media += vet[j];
+        }
+        media = media / vet.length;
+        return media;
     }
 
     @Override
@@ -274,14 +283,23 @@ public class SonsActivity extends AppCompatActivity implements LocationListener 
         boolean maisPreciso = accuracyDelta < 0;
         boolean significanteMenosPreciso = accuracyDelta > 200;
 
+        boolean isFromSameProvider = isSameProvider(location.getProvider(),
+                melhorLocalidadeAtual.getProvider());
+
         if (maisPreciso){
             return true;
         }else if (ehNovo && !menosPreciso){
             return true;
-        }else if (ehNovo && !significanteMenosPreciso){
+        }else if (ehNovo && !significanteMenosPreciso && isFromSameProvider){
             return true;
         }
         return false;
+    }
+    private boolean isSameProvider(String provider1, String provider2) {
+        if (provider1 == null) {
+            return provider2 == null;
+        }
+        return provider1.equals(provider2);
     }
     public void writeLog(int idUsuario, int status, String audio){
         //Gerando txt:
@@ -323,6 +341,7 @@ public class SonsActivity extends AppCompatActivity implements LocationListener 
         //Pega localização com delay de 5 segundos
         //locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 0, this);
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
+        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, this);
     }
     public void btTrocarSom(View view){
         closeAll();
