@@ -1,6 +1,7 @@
 package victor_vasconcelos.icomp.ufam.edu.br.composicaocolaborativa.activity;
 
 import android.Manifest;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -40,7 +41,9 @@ import victor_vasconcelos.icomp.ufam.edu.br.composicaocolaborativa.cdp.CustomJso
 
 public class SonsActivity extends AppCompatActivity implements LocationListener {
 
+    private static final int DELAY = 1000 * 10 * 2;
     private LocationManager locationManager;
+    private Location melhorPosicao;
     private TextView tvTeste, tvInicio, tvFinal, tvDist;
     private MediaPlayer mp;
     private boolean tocando = false, inside = false, entrou = false;
@@ -53,6 +56,9 @@ public class SonsActivity extends AppCompatActivity implements LocationListener 
     private HashMap<String, Som> audioList;
 
     private FileOutputStream fosExt;
+
+    private ProgressDialog pDialog;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,64 +95,36 @@ public class SonsActivity extends AppCompatActivity implements LocationListener 
             e.printStackTrace();
         }
 
+        pDialog = new ProgressDialog(this);
+        pDialog.setMessage("Please wait...");
+        pDialog.setCancelable(false);
 
-    }
 
-    public void onDestroy() {
-        super.onDestroy();
-        stopMusic();
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            return;
-        }
-        locationManager.removeUpdates(this);
-        try {
-            fosExt.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-    }
-
-    protected void onPause() {
-        super.onPause();
-        if (inside) {
-            updatePessoas("-1");
-            inside = false;
-        }
-        if (ActivityCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return;
-        }
-        locationManager.removeUpdates(this);
-        stopMusic();
-    }
-
-    protected void onResume(){
-        super.onResume();
-        ambiente = getAmbiente();
     }
 
     @Override
     public void onLocationChanged(Location location) {
 
+        //Procurar a localização mais precisa
+        if (melhorLocalidade(location,melhorPosicao)){
+            melhorPosicao = location;
+        }
+
         float vetor[] = new float[3];
+
+        //Função para saber a distancia
         Location.distanceBetween(ambiente.getLatitude(),ambiente.getLongitude(),
-                location.getLatitude(),location.getLongitude(),vetor);
-        Log.i("TESTE", "LAT INICIAL: " + location.getLatitude());
-        Log.i("TESTE", "Longi INICIAL: " + location.getLongitude());
+                melhorPosicao.getLatitude(),melhorPosicao.getLongitude(),vetor);
+
+        //Logs para o teste de variaveis
+        Log.i("TESTE", "LAT INICIAL: " + melhorPosicao.getLatitude());
+        Log.i("TESTE", "Longi INICIAL: " + melhorPosicao.getLongitude());
         Log.i("TESTE", "Lat Final: " + ambiente.getLatitude());
         Log.i("TESTE", "Longi Final: " + ambiente.getLatitude());
         Log.i("TESTE", "DISTANCIA: " + vetor[0]);
 
         tvInicio.setText(String.format("(%s,%s)", ambiente.getLongitude(), ambiente.getLatitude()));
-        tvFinal.setText(String.format("(%s,%s)", location.getLongitude(), location.getLatitude()));
+        tvFinal.setText(String.format("(%s,%s)", melhorPosicao.getLongitude(), melhorPosicao.getLatitude()));
         tvDist.setText(String.format("Distância : %s", vetor[0]));
 
         if (vetor[0] <= ambiente.getRaio()){
@@ -192,7 +170,6 @@ public class SonsActivity extends AppCompatActivity implements LocationListener 
     public void onProviderDisabled(String provider) {
 
     }
-
     private void updatePessoas(String num){
         Map<String, String> params = new HashMap<>();
         params.put("pessoa", num);
@@ -215,7 +192,6 @@ public class SonsActivity extends AppCompatActivity implements LocationListener 
         request.setTag("tag");
         rq.add(request);
     }
-
     private Ambiente getAmbiente(){
 
         String url = ip + "/composicaomusical/app.php/getAmbienteAll";
@@ -245,15 +221,14 @@ public class SonsActivity extends AppCompatActivity implements LocationListener 
         rq.add(request);
         return ambiente;
     }
-
-    public void inserirLog(int idUsuario, int status, String audio){
+    public void inserirLog(String nomeArq){
 
         String url = ip + "/composicaomusical/app.php/insertLog";
 
         Map<String, String> params = new HashMap<>();
-        params.put("id_usuario", "" + idUsuario);
-        params.put("status", "" + status);
-        params.put("audio", audio);
+        params.put("nomeArq", nomeArq);
+
+        showpDialog();
 
         CustomJsonObjectRequest request = new CustomJsonObjectRequest(Request.Method.POST,
                 url,
@@ -263,20 +238,51 @@ public class SonsActivity extends AppCompatActivity implements LocationListener 
                     public void onResponse(JSONObject response) {
 
                         Log.i("LOG", "SUCCESS: "+response);
+                        hidepDialog();
 
                     }
                 },
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-
+                        hidepDialog();
                     }
                 });
-
         request.setTag("tag");
         rq.add(request);
     }
+    private boolean melhorLocalidade(Location location, Location melhorLocalidadeAtual){
+        if (melhorLocalidadeAtual == null){
+            //Uma nova localização é melhor que nada
+            return true;
+        }
 
+        //Checando qual é a posição mais recente
+        long deltaTempo = location.getTime() - melhorLocalidadeAtual.getTime();
+        boolean significanteNovo = deltaTempo > DELAY;
+        boolean significanteVelho = deltaTempo < DELAY;
+        boolean ehNovo =  deltaTempo > 0;
+
+        if (significanteNovo){
+            return true;
+        }else if (significanteVelho){
+            return false;
+        }
+
+        int accuracyDelta = (int) (location.getAccuracy() - melhorLocalidadeAtual.getAccuracy());
+        boolean menosPreciso = accuracyDelta > 0;
+        boolean maisPreciso = accuracyDelta < 0;
+        boolean significanteMenosPreciso = accuracyDelta > 200;
+
+        if (maisPreciso){
+            return true;
+        }else if (ehNovo && !menosPreciso){
+            return true;
+        }else if (ehNovo && !significanteMenosPreciso){
+            return true;
+        }
+        return false;
+    }
     public void writeLog(int idUsuario, int status, String audio){
         //Gerando txt:
 
@@ -290,7 +296,6 @@ public class SonsActivity extends AppCompatActivity implements LocationListener 
         }
         //***************************************
     }
-
     public void playMusic(int audioRaw){
         if (!tocando){
             mp = MediaPlayer.create(SonsActivity.this, audioRaw);
@@ -299,7 +304,6 @@ public class SonsActivity extends AppCompatActivity implements LocationListener 
             tocando = true;
         }
     }
-
     public void stopMusic(){
         if (tocando) {
             mp.pause();
@@ -308,7 +312,6 @@ public class SonsActivity extends AppCompatActivity implements LocationListener 
             tocando = false;
         }
     }
-
     public void initializeProvider(){
         locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
         if (ActivityCompat.checkSelfPermission(this,
@@ -321,12 +324,45 @@ public class SonsActivity extends AppCompatActivity implements LocationListener 
         //locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 0, this);
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
     }
-
     public void btTrocarSom(View view){
+        closeAll();
         intent = new Intent (SonsActivity.this, CadastroSomActivity.class);
         intent.putExtra("user", usuario);
         intent.putExtra("theLast", "SonsActivity");
         startActivity(intent);
+    }
+    private void showpDialog() {
+        if (!pDialog.isShowing())
+            pDialog.show();
+    }
+    private void hidepDialog() {
+        if (pDialog.isShowing())
+            pDialog.dismiss();
+    }
+    private void closeAll(){
+        if (inside) {
+            updatePessoas("-1");
+            inside = false;
+        }
+        stopMusic();
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        locationManager.removeUpdates(this);
+        try {
+            fosExt.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    public void onDestroy() {
+        super.onDestroy();
+        closeAll();
+
+    }
+    protected void onResume(){
+        super.onResume();
+        ambiente = getAmbiente();
     }
 
 

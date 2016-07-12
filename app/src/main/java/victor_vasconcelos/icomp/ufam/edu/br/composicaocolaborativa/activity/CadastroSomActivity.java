@@ -110,9 +110,11 @@ public class CadastroSomActivity extends AppCompatActivity implements SomListAda
             if (theLast.equals("SonsActivity")){
                 intent = new Intent(CadastroSomActivity.this, SonsActivity.class);
                 intent.putExtra("usuario", usuario);
+                Toast.makeText(CadastroSomActivity.this,"Audio trocado com sucesso",Toast.LENGTH_LONG).show();
                 startActivity(intent);
             }else{
                 intent = new Intent(CadastroSomActivity.this, MainActivity.class);
+                Toast.makeText(CadastroSomActivity.this,"Usuário criado com sucesso",Toast.LENGTH_LONG).show();
                 startActivity(intent);
             }
         }else{
