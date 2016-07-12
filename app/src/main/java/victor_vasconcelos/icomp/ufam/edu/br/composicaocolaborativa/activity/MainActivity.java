@@ -31,7 +31,7 @@ import victor_vasconcelos.icomp.ufam.edu.br.composicaocolaborativa.cdp.CustomJso
 import victor_vasconcelos.icomp.ufam.edu.br.composicaocolaborativa.helper.PermissionUtils;
 
 public class MainActivity extends AppCompatActivity {
-    //Main Activity
+    
     String[] permissoes = new String[]{
             Manifest.permission.ACCESS_FINE_LOCATION,
             Manifest.permission.ACCESS_COARSE_LOCATION,
