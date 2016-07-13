@@ -27,6 +27,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -58,6 +59,8 @@ public class SonsActivity extends AppCompatActivity implements LocationListener 
     private FileOutputStream fosExt;
 
     private ProgressDialog pDialog;
+
+    private int i;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,21 +101,21 @@ public class SonsActivity extends AppCompatActivity implements LocationListener 
         pDialog.setMessage("Please wait...");
         pDialog.setCancelable(false);
 
+        i = 0;
 
-    }
-
-    private float media(float vet[]){
-        int j;
-        float media = 0;
-        for (j = 0; j < vet.length; j++){
-            media += vet[j];
-        }
-        media = media / vet.length;
-        return media;
     }
 
     @Override
     public void onLocationChanged(Location location) {
+
+        if (i >= 10){
+            i = 0;
+            try {
+                inserirLog(readLog("Compomus-LOG.txt"));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
 
         //Procurar a localização mais precisa
         if (melhorLocalidade(location,melhorPosicao)){
@@ -163,6 +166,8 @@ public class SonsActivity extends AppCompatActivity implements LocationListener 
         }else {
             tvTeste.setText("Ta fora");
         }
+
+        i++;
     }
 
     @Override
@@ -314,6 +319,23 @@ public class SonsActivity extends AppCompatActivity implements LocationListener 
         }
         //***************************************
     }
+    public String readLog(String file) throws IOException {
+        int length = (int) file.length();
+
+        byte[] bytes = new byte[length];
+
+        FileInputStream in = new FileInputStream(file);
+
+        try {
+            in.read(bytes);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            in.close();
+        }
+
+        return new String(bytes);
+    }
     public void playMusic(int audioRaw){
         if (!tocando){
             mp = MediaPlayer.create(SonsActivity.this, audioRaw);
@@ -363,7 +385,10 @@ public class SonsActivity extends AppCompatActivity implements LocationListener 
             inside = false;
         }
         stopMusic();
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(this,
+                        Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
         locationManager.removeUpdates(this);
