@@ -26,10 +26,11 @@ import com.android.volley.toolbox.Volley;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -39,6 +40,7 @@ import victor_vasconcelos.icomp.ufam.edu.br.composicaocolaborativa.R;
 import victor_vasconcelos.icomp.ufam.edu.br.composicaocolaborativa.Som;
 import victor_vasconcelos.icomp.ufam.edu.br.composicaocolaborativa.Usuarios;
 import victor_vasconcelos.icomp.ufam.edu.br.composicaocolaborativa.cdp.CustomJsonObjectRequest;
+import victor_vasconcelos.icomp.ufam.edu.br.composicaocolaborativa.services.ServiceLog;
 
 public class SonsActivity extends AppCompatActivity implements LocationListener {
 
@@ -57,7 +59,7 @@ public class SonsActivity extends AppCompatActivity implements LocationListener 
     private HashMap<String, Som> audioList;
 
     private FileOutputStream fosExt;
-
+    private File fileExt;
     private ProgressDialog pDialog;
 
     private int i;
@@ -90,7 +92,7 @@ public class SonsActivity extends AppCompatActivity implements LocationListener 
 
         //Get the Area of Environment
         ambiente = getAmbiente();
-        File fileExt = new File(Environment.getExternalStorageDirectory(), "Compomus-LOG.txt");
+        fileExt = new File(Environment.getExternalStorageDirectory(), "Compomus-LOG.txt");
         try {
             fosExt = new FileOutputStream(fileExt);
         } catch (FileNotFoundException e) {
@@ -102,19 +104,16 @@ public class SonsActivity extends AppCompatActivity implements LocationListener 
         pDialog.setCancelable(false);
 
         i = 0;
-
     }
 
     @Override
     public void onLocationChanged(Location location) {
 
-        if (i >= 10){
+        if (i >= 500){
             i = 0;
-            try {
-                inserirLog(readLog("Compomus-LOG.txt"));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            String aux = readLog(fileExt);
+            Log.i("String", aux);
+            inserirLog(aux, usuario.getIdUsuario(), usuario.getNome());
         }
 
         //Procurar a localização mais precisa
@@ -132,7 +131,7 @@ public class SonsActivity extends AppCompatActivity implements LocationListener 
         Log.i("TESTE", "LAT INICIAL: " + melhorPosicao.getLatitude());
         Log.i("TESTE", "Longi INICIAL: " + melhorPosicao.getLongitude());
         Log.i("TESTE", "Lat Final: " + ambiente.getLatitude());
-        Log.i("TESTE", "Longi Final: " + ambiente.getLatitude());
+        Log.i("TESTE", "Longi Final: " + ambiente.getLongitude());
         Log.i("TESTE", "DISTANCIA: " + vetor[0]);
 
         tvInicio.setText(String.format("(%s,%s)", ambiente.getLongitude(), ambiente.getLatitude()));
@@ -235,12 +234,14 @@ public class SonsActivity extends AppCompatActivity implements LocationListener 
         rq.add(request);
         return ambiente;
     }
-    public void inserirLog(String nomeArq){
+    public void inserirLog(String arquivo, int idUsuario, String nomeUsuario){
 
         String url = ip + "/composicaomusical/app.php/insertLog";
 
         Map<String, String> params = new HashMap<>();
-        params.put("nomeArq", nomeArq);
+        params.put("log", arquivo);
+        params.put("id_usuario", ""+idUsuario);
+        params.put("nomeUsuario", nomeUsuario);
 
         showpDialog();
 
@@ -319,22 +320,22 @@ public class SonsActivity extends AppCompatActivity implements LocationListener 
         }
         //***************************************
     }
-    public String readLog(String file) throws IOException {
-        int length = (int) file.length();
-
-        byte[] bytes = new byte[length];
-
-        FileInputStream in = new FileInputStream(file);
-
+    public String readLog(File file){
+        String log = "", line;
         try {
-            in.read(bytes);
+            BufferedReader br = new BufferedReader(new FileReader(file));
+            while((line = br.readLine()) != null){
+                  log += line + "\n";
+            }
+            fosExt.close();
+            fileExt = new File(Environment.getExternalStorageDirectory(), "Compomus-LOG.txt");
+            fosExt = new FileOutputStream(fileExt);
         } catch (IOException e) {
             e.printStackTrace();
-        } finally {
-            in.close();
         }
 
-        return new String(bytes);
+
+        return log;
     }
     public void playMusic(int audioRaw){
         if (!tocando){
@@ -398,15 +399,23 @@ public class SonsActivity extends AppCompatActivity implements LocationListener 
             e.printStackTrace();
         }
     }
+    public void onPause(){
+        super.onPause();
+    }
     public void onDestroy() {
         super.onDestroy();
+        startService(new Intent(getBaseContext(), ServiceLog.class));
+        stopService(new Intent(getBaseContext(), ServiceLog.class));
         closeAll();
-
+        String aux = readLog(fileExt);
+        if (!aux.equals("")){
+            inserirLog(aux, usuario.getIdUsuario(), usuario.getNome());
+        }
     }
     protected void onResume(){
         super.onResume();
         ambiente = getAmbiente();
+        initializeProvider();
     }
-
 
 }

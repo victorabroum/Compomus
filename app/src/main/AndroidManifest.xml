@@ -9,6 +9,8 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.INTERNET" />
 
+
+
     <application
         android:name=".cdp.AppController"
         android:allowBackup="true"
@@ -16,6 +18,7 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+
         <activity
             android:name=".activity.MainActivity"
             android:label="@string/app_name"
@@ -31,7 +34,9 @@
             android:name=".activity.SonsActivity"
             android:label="@string/title_activity_sons"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/AppTheme.NoActionBar"
+
+            />
         <activity
             android:name=".activity.CadastroActivity"
             android:label="@string/title_activity_cadastro"
@@ -59,6 +64,8 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="victor_vasconcelos.icomp.ufam.edu.br.composicaocolaborativa.activity.CadastroActivity" />
         </activity>
+
+        <service android:name=".services.ServiceLog"/>
     </application>
 
 </manifest>
