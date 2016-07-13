@@ -341,7 +341,6 @@ public class SonsActivity extends AppCompatActivity implements LocationListener 
         //Pega localização com delay de 5 segundos
         //locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 0, this);
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
-        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, this);
     }
     public void btTrocarSom(View view){
         closeAll();
