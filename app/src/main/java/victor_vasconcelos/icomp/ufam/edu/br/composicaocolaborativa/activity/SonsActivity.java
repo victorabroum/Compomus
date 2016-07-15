@@ -40,6 +40,7 @@ import victor_vasconcelos.icomp.ufam.edu.br.composicaocolaborativa.R;
 import victor_vasconcelos.icomp.ufam.edu.br.composicaocolaborativa.Som;
 import victor_vasconcelos.icomp.ufam.edu.br.composicaocolaborativa.Usuarios;
 import victor_vasconcelos.icomp.ufam.edu.br.composicaocolaborativa.cdp.CustomJsonObjectRequest;
+import victor_vasconcelos.icomp.ufam.edu.br.composicaocolaborativa.helper.RequestMethod;
 import victor_vasconcelos.icomp.ufam.edu.br.composicaocolaborativa.services.ServiceLog;
 
 public class SonsActivity extends AppCompatActivity implements LocationListener {
@@ -186,24 +187,8 @@ public class SonsActivity extends AppCompatActivity implements LocationListener 
     private void updatePessoas(String num){
         Map<String, String> params = new HashMap<>();
         params.put("pessoa", num);
-
         String url = ip + "/composicaomusical/app.php/updatePessoas";
-        CustomJsonObjectRequest request = new CustomJsonObjectRequest(Request.Method.PUT,
-                url,
-                params,
-                new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        Log.i("UpdateAmbiente", "Update das Pessoas do ambiente " + response);
-                    }
-                }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                    Log.e("ERROR UPdate", "ERROR no Update " + error.getMessage());
-            }
-        });
-        request.setTag("tag");
-        rq.add(request);
+        RequestMethod.makePut(params, url, rq);
     }
     private Ambiente getAmbiente(){
 
@@ -243,28 +228,7 @@ public class SonsActivity extends AppCompatActivity implements LocationListener 
         params.put("id_usuario", ""+idUsuario);
         params.put("nomeUsuario", nomeUsuario);
 
-        showpDialog();
-
-        CustomJsonObjectRequest request = new CustomJsonObjectRequest(Request.Method.POST,
-                url,
-                params,
-                new Response.Listener<JSONObject>(){
-                    @Override
-                    public void onResponse(JSONObject response) {
-
-                        Log.i("LOG", "SUCCESS: "+response);
-                        hidepDialog();
-
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        hidepDialog();
-                    }
-                });
-        request.setTag("tag");
-        rq.add(request);
+        RequestMethod.makePost(params, url, rq);
     }
     private boolean melhorLocalidade(Location location, Location melhorLocalidadeAtual){
         if (melhorLocalidadeAtual == null){
@@ -404,13 +368,13 @@ public class SonsActivity extends AppCompatActivity implements LocationListener 
     }
     public void onDestroy() {
         super.onDestroy();
-        startService(new Intent(getBaseContext(), ServiceLog.class));
-        stopService(new Intent(getBaseContext(), ServiceLog.class));
-        closeAll();
-        String aux = readLog(fileExt);
-        if (!aux.equals("")){
-            inserirLog(aux, usuario.getIdUsuario(), usuario.getNome());
+        String archive = readLog(fileExt);
+        if (!archive.equals("")){
+            inserirLog(archive, usuario.getIdUsuario(), usuario.getNome());
+            intent = new Intent(this, ServiceLog.class);
+            startService(intent);
         }
+        closeAll();
     }
     protected void onResume(){
         super.onResume();

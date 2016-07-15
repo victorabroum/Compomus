@@ -20,6 +20,7 @@ public class ServiceLog extends Service {
         // Let it continue running until it is stopped.
         super.onStartCommand(intent,flags,startId);
         Toast.makeText(this, "Service Started", Toast.LENGTH_LONG).show();
+        stopSelf();
         return START_STICKY;
     }
 
