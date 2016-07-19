@@ -13,4 +13,6 @@
     <string name="ip_celular">http://192.168.43.15:8080</string>
     <string name="title_activity_cadastro_som">CadastroSomActivity</string>
     <string name="configurarLocation">Configurar Localização</string>
+    <string name="isInside">Ta dentro</string>
+    <string name="isOut">Ta fora</string>
 </resources>

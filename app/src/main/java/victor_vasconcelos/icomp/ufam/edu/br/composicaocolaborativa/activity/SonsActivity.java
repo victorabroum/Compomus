@@ -160,9 +160,9 @@ public class SonsActivity extends AppCompatActivity implements com.google.androi
         ambiente = getAmbiente();
 
         if (inside) {
-            tvTeste.setText("Ta dentro");
+            tvTeste.setText(R.string.isInside);
         } else {
-            tvTeste.setText("Ta fora");
+            tvTeste.setText(R.string.isOut);
         }
 
         i++;
