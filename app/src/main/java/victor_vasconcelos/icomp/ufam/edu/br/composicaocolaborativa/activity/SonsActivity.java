@@ -54,7 +54,7 @@ public class SonsActivity extends AppCompatActivity implements com.google.androi
 
     private GoogleApiClient mGoogleApiClient;
     private LocationRequest mLocationRequest;
-    
+
     //****************
 
     private TextView tvTeste, tvInicio, tvFinal, tvDist;
