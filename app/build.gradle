@@ -26,6 +26,6 @@ dependencies {
     compile 'com.android.support:design:23.1.1'
     compile 'com.mcxiaoke.volley:library:1.0.10@aar'
     compile 'com.google.code.gson:gson:2.4'
-    compile 'com.google.android.gms:play-services-appindexing:8.4.0'
-    compile 'com.android.support:recyclerview-v7:22.2.0'
+    compile 'com.google.android.gms:play-services:9.2.1'
+    compile 'com.android.support:recyclerview-v7:23.2.0'
 }
