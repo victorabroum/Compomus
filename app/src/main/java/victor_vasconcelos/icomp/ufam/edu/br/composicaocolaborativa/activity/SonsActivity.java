@@ -70,41 +70,7 @@ public class SonsActivity extends AppCompatActivity implements LocationListener 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sons);
 
-        ip = getResources().getString(R.string.ip);
-
-        //Recupera as informações da Intent
-        intent = getIntent();
-        usuario = (Usuarios) intent.getSerializableExtra("usuario");
-
-        //Initialize the RequestQueue
-        rq = Volley.newRequestQueue(SonsActivity.this);
-
-        //Initialize a locationManage and set a Provider
-        initializeProvider();
-
-        //initialize a TextView
-        tvTeste = (TextView) findViewById(R.id.tvTeste);
-        tvInicio = (TextView) findViewById(R.id.tvInicio);
-        tvFinal = (TextView) findViewById(R.id.tvFinal);
-        tvDist = (TextView) findViewById(R.id.tvDist);
-
-        //Make a HasMap of audios
-        audioList = Som.populateKeyAudios();
-
-        //Get the Area of Environment
-        ambiente = getAmbiente();
-        fileExt = new File(Environment.getExternalStorageDirectory(), "Compomus-LOG.txt");
-        try {
-            fosExt = new FileOutputStream(fileExt);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-
-        pDialog = new ProgressDialog(this);
-        pDialog.setMessage("Please wait...");
-        pDialog.setCancelable(false);
-
-        i = 0;
+        Log.i("Cycle of Life", "Created");
     }
 
     @Override
@@ -365,6 +331,7 @@ public class SonsActivity extends AppCompatActivity implements LocationListener 
     }
     public void onPause(){
         super.onPause();
+        Log.i("Cycle of Life", "Pause");
     }
     public void onDestroy() {
         super.onDestroy();
@@ -375,11 +342,48 @@ public class SonsActivity extends AppCompatActivity implements LocationListener 
             startService(intent);
         }
         closeAll();
+        Log.i("Cycle of Life", "Destroyed");
     }
     protected void onResume(){
         super.onResume();
+        ip = getResources().getString(R.string.ip);
+
+        //Recupera as informações da Intent
+        intent = getIntent();
+        usuario = (Usuarios) intent.getSerializableExtra("usuario");
+
+        //Initialize the RequestQueue
+        rq = Volley.newRequestQueue(SonsActivity.this);
+
+        //Initialize a locationManage and set a Provider
+        initializeProvider();
+
+        //initialize a TextView
+        tvTeste = (TextView) findViewById(R.id.tvTeste);
+        tvInicio = (TextView) findViewById(R.id.tvInicio);
+        tvFinal = (TextView) findViewById(R.id.tvFinal);
+        tvDist = (TextView) findViewById(R.id.tvDist);
+
+        //Make a HasMap of audios
+        audioList = Som.populateKeyAudios();
+
+        //Create and Open a txt file
+        fileExt = new File(Environment.getExternalStorageDirectory(), "Compomus-LOG.txt");
+        try {
+            fosExt = new FileOutputStream(fileExt);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        pDialog = new ProgressDialog(this);
+        pDialog.setMessage("Please wait...");
+        pDialog.setCancelable(false);
+
+        i = 0;
+
         ambiente = getAmbiente();
         initializeProvider();
+        Log.i("Cycle of Life", "Resumed");
     }
 
 }
