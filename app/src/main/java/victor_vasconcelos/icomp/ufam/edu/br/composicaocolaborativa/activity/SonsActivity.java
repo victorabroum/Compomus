@@ -293,6 +293,14 @@ public class SonsActivity extends AppCompatActivity implements com.google.androi
         if (mGoogleApiClient != null) {
             stopLocationUpdate();
         }
+
+        //Send to data base log text
+        String archive = readLog(fileExt);
+        if (!archive.equals("")) {
+            inserirLog(archive, usuario.getIdUsuario(), usuario.getNome());
+            intent = new Intent(this, ServiceLog.class);
+            startService(intent);
+        }
     }
 
     public void onPause() {
@@ -303,12 +311,6 @@ public class SonsActivity extends AppCompatActivity implements com.google.androi
 
     public void onDestroy() {
         super.onDestroy();
-        String archive = readLog(fileExt);
-        if (!archive.equals("")) {
-            inserirLog(archive, usuario.getIdUsuario(), usuario.getNome());
-            intent = new Intent(this, ServiceLog.class);
-            startService(intent);
-        }
         closeAll();
         Log.i("Cycle of Life", "Destroyed");
     }
@@ -329,8 +331,8 @@ public class SonsActivity extends AppCompatActivity implements com.google.androi
     * */
     private void initLocationRequest() {
         mLocationRequest = new LocationRequest();
-        mLocationRequest.setInterval(1000);
-        mLocationRequest.setFastestInterval(500);
+        mLocationRequest.setInterval(0);
+        //mLocationRequest.setFastestInterval(500);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
     }
 
@@ -384,6 +386,7 @@ public class SonsActivity extends AppCompatActivity implements com.google.androi
         }
         startLocationUpdate();
     }
+
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
