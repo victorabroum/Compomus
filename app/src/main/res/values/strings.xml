@@ -8,8 +8,8 @@
     <string name="title_activity_tela_cadastro">TelaCadastro</string>
     <string name="title_activity_cadastro">CadastroActivity</string>
     <string name="title_activity_set_location">SetLocationActivity</string>
-    <string name="ip">http://192.168.0.103</string>
-    <string name="ip_casa_bckup">http://192.168.0.100:8080</string>
+    <string name="ip">http://192.168.43.15</string>
+    <string name="ip_casa_bckup">http://192.168.0.103</string>
     <string name="ip_celular">http://192.168.43.15:8080</string>
     <string name="title_activity_cadastro_som">CadastroSomActivity</string>
     <string name="configurarLocation">Configurar Localização</string>

@@ -250,8 +250,8 @@ public class SonsActivity extends AppCompatActivity implements com.google.androi
         return log;
     }
 
-    public void playMusic(int audioRaw) {
-        if (!tocando) {
+    public void playMusic(Integer audioRaw) {
+        if (!tocando && audioRaw != null) {
             mp = MediaPlayer.create(SonsActivity.this, audioRaw);
             mp.start();
             mp.setLooping(true);
